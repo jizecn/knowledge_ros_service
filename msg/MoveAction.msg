@@ -2,5 +2,5 @@
 int16 dim
 
 # Target Pose
-geometry_msgs/Pose targetPose3D
-geometry_msgs/Pose2D targetPose2D
+Pose targetPose3D
+Pose2D targetPose2D
