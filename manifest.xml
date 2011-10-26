@@ -1,0 +1,17 @@
+<package>
+  <description brief="testrosjavajni">
+
+     testrosjavajni
+
+  </description>
+  <author>Ze Ji</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/testrosjavajni</url>
+  <depend package="roslib"/>
+  <depend package="rosjava_jni"/>
+  <depend package="roscpp"/>
+  <depend package="std_msgs"/>
+</package>
+
+
