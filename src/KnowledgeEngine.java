@@ -1,22 +1,64 @@
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.*;
 import com.hp.hpl.jena.util.FileManager;
-//import com.hp.hpl.jena.graph.query;
-import com.hp.hpl.jena.query.Query;
 
+import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.ResultSetFormatter;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.QueryExecution;
-//import com.hp.hpl.jena.vocabulary.*;
 
 import java.io.*;
 
-class TestROSJavaJNI
-{
-    public TestROSJavaJNI()
+import ros.*;
+import ros.communication.*;
+import ros.pkg.knowledge_ros_service.srv.AskForActionSequence;
+//import ros.pkg.knowledge_ros_service.srv.AddTwoInts;
+
+class KnowledgeEngine
+{    
+    public AskForActionSequence.Response generateSequence(AskForActionSequence.Request request)
     {
+	AskForActionSequence.Response res = new AskForActionSequence.Response();
+	
+	System.out.println("OK here ==== ");
+	//res.sum = request.a + request.b;
+	return res;
+    }
+
+    public KnowledgeEngine()
+    {
+	Ros ros = Ros.getInstance();
+	ros.init("knowledge_srs_node");
+	//ros.logDebug("DEBUG");
+	ros.logInfo("INFO: Start RosJava_JNI service");
+	//ros.logWarn("WARN");
+	//ros.logError("ERROR");
+	//ros.logFatal("FATAL");
+	
+	NodeHandle n = ros.createNodeHandle();
+	n.setParam("test", 2);
+	n.setParam("test2", 2.2);
+	n.setParam("test3", "2.5");
+	
+	//System.out.println(n.getIntParam("test"));
+	//System.out.println(n.getDoubleParam("test2"));
+	//System.out.println(n.getStringParam("test3"));
+
+	ServiceServer.Callback<AskForActionSequence.Request, AskForActionSequence.Response> scb = new ServiceServer.Callback<AskForActionSequence.Request,AskForActionSequence.Response>() {
+            public AskForActionSequence.Response call(AskForActionSequence.Request request) {
+		return generateSequence(request);
+            }
+	};
+	
+	try{
+	    ServiceServer<AskForActionSequence.Request,AskForActionSequence.Response,AskForActionSequence> srv = n.advertiseService("add_two_ints", new AskForActionSequence(), scb);
+	}
+	catch(Exception e) {
+	    System.out.println(e.getMessage());
+	}
+	ros.spin();
     }
 
     public void testModel()
@@ -142,7 +184,7 @@ class TestROSJavaJNI
 	else  {
 	    System.out.println();
 	}
-	TestROSJavaJNI testRosJava = new TestROSJavaJNI();
+	KnowledgeEngine testRosJava = new KnowledgeEngine();
 	try{
 	    Model m = testRosJava.loadOWLFile(args[0]);
 	    testRosJava.testSparQL(m);
