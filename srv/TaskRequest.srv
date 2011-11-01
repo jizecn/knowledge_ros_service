@@ -1,0 +1,24 @@
+
+#input: command + target
+
+# task: get(fetch & carry task) 
+string task
+
+# if to get an object (milk0) or any in the general class (eg. Milk)
+string objectOrClass 
+
+ABoxObject aboxObject
+TBoxObject tboxObject
+
+# Or other task information
+
+---
+
+# 0: successful. 1: unsuccessful. 2: other
+int16 result
+
+# generated taskId
+int16 taskId
+
+#if other case
+string description
