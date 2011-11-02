@@ -3,8 +3,8 @@ import roslib;
 #roslib.load_manifest('beginner_tutorials')
 roslib.load_manifest('knowledge_ros_service')
 import sys
-
 import rospy
+
 from knowledge_ros_service.srv import *
 
 def add_two_ints_client():
@@ -19,6 +19,7 @@ def add_two_ints_client():
     except rospy.ServiceException, e:
         print "Service call failed: %s"%e
 
+
 def querySparQL():
     rospy.wait_for_service('query_sparql')
     try:
@@ -32,6 +33,20 @@ def querySparQL():
     except rospy.ServiceException, e:
         print "Service call failed: %s"%e
 
+def testNextActionService():
+    print 'here'
+    rospy.wait_for_service('plan_next_action')
+    try:
+        next_action = rospy.ServiceProxy('plan_next_action', PlanNextAction)
+        print 'here'
+        
+        resp1 = next_action(1, [0, 0, 0])
+        print 'here'
+    
+        return resp1.nextAction
+    
+    except rospy.ServiceException, e:
+        print "Service call failed: %s"%e
 
 
 def usage():
@@ -40,3 +55,4 @@ def usage():
 if __name__ == "__main__":
     #print len(add_two_ints_client())
     print querySparQL()
+    print testNextActionService()

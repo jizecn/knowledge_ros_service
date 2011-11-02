@@ -67,6 +67,8 @@ class KnowledgeEngine
 	try{
 	    initGenerateSequence();
 	    initQuerySparQL();
+	    initPlanNextAction();
+	    initTaskRequest();
 	}
 	catch(RosException e){
 	    System.out.println(e.getMessage());
@@ -128,16 +130,26 @@ class KnowledgeEngine
     private PlanNextAction.Response handlePlanNextAction( PlanNextAction.Request request)
     {
 	PlanNextAction.Response res = new PlanNextAction.Response();
-	ActionTuple at = new ActionTuple();
+
+	System.out.println("1 -------------");
+	ActionTuple at = null;
 	if(request.stateLastAction.length == 3) {
 	    if(request.stateLastAction[0] == 0 && request.stateLastAction[1] == 0 && request.stateLastAction[2] == 0) {
 		at = currentTask.getNextAction(true);
 	    }
 	}
+	if (at == null) {
+	    at = currentTask.getNextAction(false);
+	}
 
+	System.out.println("2 -------------");
+	
 	CUAction ca = new CUAction(); 
 	ca = at.getCUAction();
+
 	res.nextAction = ca;
+	
+	System.out.println("3 -------------");
 	
 	//ros.logInfo("INFO: Generate sequence of length: ");
 	return res;
@@ -158,6 +170,7 @@ class KnowledgeEngine
     {
 	TaskRequest.Response res = new TaskRequest.Response();
 
+	res.result = 0;
 	//CUAction ca = new CUAction(); 
 		
 	//res.nextAction = ca;

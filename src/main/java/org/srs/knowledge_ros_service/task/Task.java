@@ -16,6 +16,7 @@ public class Task
 	acts = new ArrayList<ActionTuple>();
 	//actionSequence = new ArrayList<CUAction>();
 	setTaskType(type);
+	currentAction = null;
     }
 
     public void setTaskId(int id)
@@ -40,8 +41,33 @@ public class Task
 
     public ActionTuple getNextAction(boolean stateLastAction)
     {
+	if(currentAction == null){
+	    for(int i = 0; i < acts.size(); i++)
+		{
+		    if(acts.get(i).getActionId() == 1)
+			{
+			    currentAction = acts.get(i);
+			    currentActionLoc = i;
+			    return acts.get(i);
+			}
+		}
+	}
+	else {
+	//ActionTuple at;
+	//int parentId = at.getParentId();
+	for(int i = 0; i < acts.size(); i++) {
+	    // if(acts.get(currentActionLoc).getId() == acts.get(i).getParentId() && stateLastAction == acts.get(i).getCondition()){    
+	    if(currentAction.getActionId() == acts.get(i).getParentId() && stateLastAction == acts.get(i).getCondition()){
+		currentAction = acts.get(i);
+		currentActionLoc = i;
+		System.out.println("");
+		return currentAction;
+	    }
+	}
+	}
 	return null;
     }
+
     public boolean addNewActionTuple(ActionTuple act)
     {
 	return acts.add(act);
@@ -170,8 +196,13 @@ public class Task
 	return ga;
     }
 
+    
+
     private TaskType taskType;
     private int taskId;
     //private ArrayList<CUAction> actionSequence;
     private ArrayList<ActionTuple> acts;
+    private int currentActionId = 1;
+    private ActionTuple currentAction;
+    private int currentActionLoc = 0; 
 }

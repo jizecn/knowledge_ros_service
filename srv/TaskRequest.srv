@@ -12,13 +12,15 @@ TBoxObject tboxObject
 
 # Or other task information
 
+geometry_msgs/Pose2D userPose
+
 ---
 
 # 0: successful. 1: unsuccessful. 2: other
 int16 result
 
-# generated taskId
-int16 taskId
+# generated sessionId
+int16 sessionId
 
 #if other case
 string description
