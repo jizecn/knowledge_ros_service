@@ -33,7 +33,7 @@ class KnowledgeEngine
     {
 	ontoDB = new OntologyDB(ontologyFile);
 	this.nodeName = nodeName;
-	this.initROS();
+	//this.initROS();
     }
 
     public KnowledgeEngine(Properties conf)
@@ -49,10 +49,10 @@ class KnowledgeEngine
 	generateSequenceService = conf.getProperty("generateSequenceService", "generate_sequence");
 	querySparQLService = conf.getProperty("querySparQLService", "query_sparql");
 	
-	this.initROS();
+	//this.initROS();
     }
 
-    private Boolean initROS()
+    public boolean initROS()
     {
 	ros = Ros.getInstance();
 	ros.init(nodeName);
@@ -128,9 +128,15 @@ class KnowledgeEngine
     private PlanNextAction.Response handlePlanNextAction( PlanNextAction.Request request)
     {
 	PlanNextAction.Response res = new PlanNextAction.Response();
+	ActionTuple at = new ActionTuple();
+	if(request.stateLastAction.length == 3) {
+	    if(request.stateLastAction[0] == 0 && request.stateLastAction[1] == 0 && request.stateLastAction[2] == 0) {
+		at = currentTask.getNextAction(true);
+	    }
+	}
 
 	CUAction ca = new CUAction(); 
-		
+	ca = at.getCUAction();
 	res.nextAction = ca;
 	
 	//ros.logInfo("INFO: Generate sequence of length: ");
@@ -171,6 +177,53 @@ class KnowledgeEngine
 	ServiceServer<TaskRequest.Request, TaskRequest.Response, TaskRequest> srv = n.advertiseService(taskRequestService, new TaskRequest(), scb);
     }
 
+    public boolean loadPredefinedTasksForTest()
+    {
+	try{
+	    System.out.println("Create Task Object");
+	    currentTask = new Task(Task.TaskType.GET_OBJECT);
+	    String taskFile = config.getProperty("taskfile", "task1.seq");
+	    System.out.println(taskFile);
+	    if(currentTask.loadPredefinedSequence(taskFile))   {
+		System.out.println("OK... ");
+	    }
+	    else  {
+		System.out.println("Fail to load... ");
+	    }
+	}
+	catch(Exception e) {
+	    // should throw out. only keep for testing here
+	    System.out.println(e.getMessage());
+	    return false;
+	}
+	//    public ArrayList<ActionTuple> getActionSequence()
+	ArrayList<ActionTuple> acts = currentTask.getActionSequence();
+
+	System.out.println(acts.size());
+	return true;
+    }
+
+    public static void testTask(Properties conf)
+    {
+	try{
+	    System.out.println("Create Task Object");
+	    Task task = new Task(Task.TaskType.GET_OBJECT);
+	    String taskFile = conf.getProperty("taskfile", "task1.seq");
+	    System.out.println(taskFile);
+	    if(task.loadPredefinedSequence(taskFile))   {
+		System.out.println("OK... ");
+	    }
+	    else  {
+		System.out.println("Fail to load... ");
+	    }
+	}
+	catch(Exception e) {
+	    System.out.println(e.getMessage());
+	}
+    }
+
+    
+    
     public static void main(String[] args)
     {
 	String configFile = new String();
@@ -185,28 +238,31 @@ class KnowledgeEngine
 	}
 
 	Properties conf = new Properties();
-	
+	KnowledgeEngine knowEng;
 	try{
 	    InputStream is = new FileInputStream(configFile);
 	    conf.load(is);
-	    KnowledgeEngine knowEng = new KnowledgeEngine(conf);
+	
+	//////
+	//testTask(conf);
+	/////
+
+
+	    knowEng = new KnowledgeEngine(conf);
+
+	    
 	}
 	catch(IOException e){
-	    KnowledgeEngine knowEng = new KnowledgeEngine("knowledge_srs_node", "../conf/house.owl");
+	    knowEng = new KnowledgeEngine("knowledge_srs_node", "../conf/house.owl");
 	}
-	    
-	//KnowledgeEngine knowEng = new KnowledgeEngine("knowledge_srs_node", "house.owl");
+
+	knowEng.loadPredefinedTasksForTest();
+	knowEng.initROS();
+
 	
-	/*
-	try{
-	    Model m = testRosJava.loadOWLFile(args[0]);
-	    testRosJava.testSparQL(m);
-	}
-	catch(IllegalArgumentException e) {
-	    System.out.println(e.getMessage());
-	}
-	*/
     }
+
+    private Task currentTask;
 
     private OntologyDB ontoDB;
     private Ros ros;
@@ -219,4 +275,7 @@ class KnowledgeEngine
     private String planNextActionService = "plan_next_action";
     private String generateSequenceService = "generate_sequence";
     private String querySparQLService = "query_sparql";
+
+    // 0: normal mode; 1: test mode (no inference, use predefined script instead)  ---- will remove this flag eventually. only kept for testing
+    int flag = 1;
 }
