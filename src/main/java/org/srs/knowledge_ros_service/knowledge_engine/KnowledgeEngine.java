@@ -38,7 +38,7 @@ class KnowledgeEngine
 
     public KnowledgeEngine(Properties conf)
     {
-	String ontoDBFile = conf.getProperty("ontologyFile", "../conf/house.owl");
+	String ontoDBFile = conf.getProperty("ontologyFile", "/home/ze/ros_workspace/knowledge_ros_service/conf/house.owl");
 	ontoDB = new OntologyDB(ontoDBFile);
 
 	this.nodeName = conf.getProperty("nodename", "knowledge_srs_node");
@@ -180,7 +180,7 @@ class KnowledgeEngine
 	    System.out.println(configFile);
 	}
 	else  {
-	    configFile = "../conf/srsknow.cfg";
+	    configFile = "conf/srsknow.cfg";
 	    System.out.println(configFile);
 	}
 

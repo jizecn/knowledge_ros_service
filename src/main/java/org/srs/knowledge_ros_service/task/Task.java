@@ -35,6 +35,21 @@ class Task
 	return actionSequence;
     }
 
+    public void loadPredefinedSequence(String file) throws IOException
+    {
+	
+    }
+
+    public void parseAction(String actionDesc)
+    {
+	
+    }
+
+    private void parseMoveAction(String moveAction)
+    {
+	
+    }
+
     private TaskType taskType;
     private int taskId;
     private ArrayList<CUAction> actionSequence;

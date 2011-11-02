@@ -13,6 +13,6 @@ add_jar_dir($ENV{JENAROOT}/lib)
 #add_jar_dir(/usr/share/java)
 add_java_source_dir(${PROJECT_SOURCE_DIR}/src)
 
-rospack_add_java_executable(bin/KnowledgeEngine KnowledgeEngine)
-
+#rospack_add_java_executable(bin/KnowledgeEngine KnowledgeEngine)
+rospack_add_java_executable(bin/org.srs.knowledge_ros_service.knowledge_engine.KnowledgeEngine  org.srs.knowledge_ros_service.knowledge_engine.KnowledgeEngine)
 # rosbuild_add_rostest(test/rosjava_test.launch)
