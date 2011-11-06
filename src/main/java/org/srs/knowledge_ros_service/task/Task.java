@@ -41,33 +41,37 @@ public class Task
 
     public ActionTuple getNextAction(boolean stateLastAction)
     {
-	if(currentAction == null){
-	    for(int i = 0; i < acts.size(); i++)
-		{
-		    if(acts.get(i).getActionId() == 1)
-			{
-			    currentAction = acts.get(i);
-			    currentActionLoc = i;
-			    return acts.get(i);
-			}
+	if(currentAction == null) {
+	    for(int i = 0; i < acts.size(); i++) {
+		if(acts.get(i).getActionId() == 1) {
+		    currentAction = acts.get(i);
+		    currentActionLoc = i;
+		    System.out.println(i);
+		    System.out.println(currentAction.getActionName());
+
+		    return acts.get(i);
 		}
-	}
-	else {
-	//ActionTuple at;
-	//int parentId = at.getParentId();
-	for(int i = 0; i < acts.size(); i++) {
-	    // if(acts.get(currentActionLoc).getId() == acts.get(i).getParentId() && stateLastAction == acts.get(i).getCondition()){    
-	    if(currentAction.getActionId() == acts.get(i).getParentId() && stateLastAction == acts.get(i).getCondition()){
-		currentAction = acts.get(i);
-		currentActionLoc = i;
-		System.out.println("");
-		return currentAction;
 	    }
 	}
+	else {
+	    //ActionTuple at;
+	    //int parentId = at.getParentId();
+	    for(int i = 0; i < acts.size(); i++) {
+		// if(acts.get(currentActionLoc).getId() == acts.get(i).getParentId() && stateLastAction == acts.get(i).getCondition()){    
+		if(currentAction.getActionId() == acts.get(i).getParentId() && stateLastAction == acts.get(i).getCondition()){
+		    currentAction = acts.get(i);
+		    currentActionLoc = i;
+		    System.out.println(i);
+		    System.out.println(currentAction.getActionName());
+		    System.out.println("NLKJALKJ");
+		    return currentAction;
+		}
+	    }
+	    System.out.println("no action found");
 	}
 	return null;
     }
-
+    
     public boolean addNewActionTuple(ActionTuple act)
     {
 	return acts.add(act);
@@ -86,9 +90,12 @@ public class Task
 	    in = new LineNumberReader(freader);
 	    String line = "";
 
-	    while((line = in.readLine()) != null) {
-		System.out.println("Line: " + in.getLineNumber() + ": " + line);
+	    while((line = in.readLine().trim()) != null) {
+		//System.out.println("Line: " + in.getLineNumber() + ": " + line);
 		if( line.equals("")) {
+		    continue;
+		}
+		else if(line.substring(0,1).equals("#")) {
 		    continue;
 		}
 		ActionTuple act = parseAction(line);

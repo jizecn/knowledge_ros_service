@@ -127,29 +127,59 @@ class KnowledgeEngine
 	ServiceServer<QuerySparQL.Request, QuerySparQL.Response, QuerySparQL> srv = n.advertiseService( querySparQLService , new QuerySparQL(), scb);
     }
 
-    private PlanNextAction.Response handlePlanNextAction( PlanNextAction.Request request)
+    private PlanNextAction.Response handlePlanNextAction( PlanNextAction.Request request) throws NullPointerException
     {
 	PlanNextAction.Response res = new PlanNextAction.Response();
+	CUAction ca = new CUAction(); 
+	
+	if(currentTask == null) {
+	    System.out.println("Current Task is NULL. Send task request first");
+	    res.nextAction = new CUAction(); // empty task
+	    return res;
+	    //throw new NullPointerException("Current Task is NULL. Send task request first");
+	}
 
-	System.out.println("1 -------------");
 	ActionTuple at = null;
 	if(request.stateLastAction.length == 3) {
 	    if(request.stateLastAction[0] == 0 && request.stateLastAction[1] == 0 && request.stateLastAction[2] == 0) {
-		at = currentTask.getNextAction(true);
+		at = currentTask.getNextAction(true); // no error. generate new action
+		
+		
+	    }
+	    else if(request.stateLastAction[0] == 2 || request.stateLastAction[1] == 2 || request.stateLastAction[2] == 2) {
+		ros.logInfo("INFO: possible hardware failure with robot. cancel current task");
+		ros.logInfo("INFO: Task termintated");
+		
+		currentTask = null;
+		currentSessionId = 1;
+		res.nextAction = new CUAction();
+		return res;
+	    }
+	    else{
+		at = currentTask.getNextAction(false);
 	    }
 	}
-	if (at == null) {
-	    at = currentTask.getNextAction(false);
-	}
-
-	System.out.println("2 -------------");
 	
-	CUAction ca = new CUAction(); 
+	if(at == null) {
+	    currentTask = null;
+	    currentSessionId = 1;
+	    System.out.println("No further action can be planned. Terminate the task. ");
+
+	    res.nextAction = new CUAction(); // empty task
+	    return res;	    
+	}
+	if(at.getActionName().equals("finish_success") ||  at.getActionName().equals("finish_fail")) {
+	    currentTask = null;
+	    currentSessionId = 1;
+	    System.out.println("Reached the end of the task. No further action to be executed. ");
+	    res.nextAction = new CUAction(); // empty task
+	    return res;	    
+	}
+	
+
 	ca = at.getCUAction();
 
 	res.nextAction = ca;
-	
-	System.out.println("3 -------------");
 	
 	//ros.logInfo("INFO: Generate sequence of length: ");
 	return res;
@@ -162,19 +192,24 @@ class KnowledgeEngine
 		return handlePlanNextAction(request);
             }
 	};
-
+	
 	ServiceServer<PlanNextAction.Request, PlanNextAction.Response, PlanNextAction> srv = n.advertiseService(planNextActionService, new PlanNextAction(), scb);
     }
-
+    
     private TaskRequest.Response handleTaskRequest( TaskRequest.Request request)
     {
 	TaskRequest.Response res = new TaskRequest.Response();
+	
+	System.out.println("Received request for new task");
+	
+	this.loadPredefinedTasksForTest();
 
 	res.result = 0;
+	currentSessionId++; // TODO: generate unique id
+	res.sessionId = currentSessionId;
+	res.description = "No";
 	//CUAction ca = new CUAction(); 
-		
 	//res.nextAction = ca;
-	
 	//ros.logInfo("INFO: Generate sequence of length: ");
 	return res;
     }
@@ -187,6 +222,7 @@ class KnowledgeEngine
             }
 	};
 
+	System.out.println(taskRequestService);
 	ServiceServer<TaskRequest.Request, TaskRequest.Response, TaskRequest> srv = n.advertiseService(taskRequestService, new TaskRequest(), scb);
     }
 
@@ -269,14 +305,14 @@ class KnowledgeEngine
 	    knowEng = new KnowledgeEngine("knowledge_srs_node", "../conf/house.owl");
 	}
 
-	knowEng.loadPredefinedTasksForTest();
+	//knowEng.loadPredefinedTasksForTest();
 	knowEng.initROS();
 
 	
     }
 
     private Task currentTask;
-
+    private int currentSessionId = 1;
     private OntologyDB ontoDB;
     private Ros ros;
     private NodeHandle n;

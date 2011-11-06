@@ -33,18 +33,40 @@ def querySparQL():
     except rospy.ServiceException, e:
         print "Service call failed: %s"%e
 
-def testNextActionService():
-    print 'here'
+def testNextActionService(result):
+    print 'Plan next Action service'
     rospy.wait_for_service('plan_next_action')
     try:
         next_action = rospy.ServiceProxy('plan_next_action', PlanNextAction)
         print 'here'
         
-        resp1 = next_action(1, [0, 0, 0])
+        resp1 = next_action(1, result)
         print 'here'
     
         return resp1.nextAction
     
+    except rospy.ServiceException, e:
+        print "Service call failed: %s"%e
+
+def terminateCurrentTask():
+    print 'Terminate current task (due to vital problems, e.g. with hardware)'
+    rospy.wait_for_service('plan_next_action')
+    try:
+        next_action = rospy.ServiceProxy('plan_next_action', PlanNextAction)
+        res = next_action(1, [2, 2, 2])
+        print 'here'
+        return res
+    except rospy.ServiceException, e:
+        print "Service call failed: %s"%e
+
+
+def requestNewTask():
+    print 'Request new task'
+    rospy.wait_for_service('task_request')
+    try:
+        requestNewTask = rospy.ServiceProxy('task_request', TaskRequest)
+        res = requestNewTask()
+        return res
     except rospy.ServiceException, e:
         print "Service call failed: %s"%e
 
@@ -54,5 +76,10 @@ def usage():
 
 if __name__ == "__main__":
     #print len(add_two_ints_client())
-    print querySparQL()
-    print testNextActionService()
+    #print querySparQL()
+    print requestNewTask()
+    print testNextActionService([0,0,0])
+    print testNextActionService([0,0,0])
+    print testNextActionService([0,1,0])
+    print testNextActionService([0,0,0])
+    print testNextActionService([0,0,0])

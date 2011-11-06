@@ -17,10 +17,10 @@ geometry_msgs/Pose2D userPose
 ---
 
 # 0: successful. 1: unsuccessful. 2: other
-int16 result
+int32 result
 
 # generated sessionId
-int16 sessionId
+int32 sessionId
 
 #if other case
 string description
